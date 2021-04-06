@@ -1,0 +1,6 @@
+PH_FOLDER = "photos"
+CAT1 = "car"
+CAT2 = "airplanes"
+CAT3 = "elephant"
+CAT4 = "bikes"
+DATABASE = r"store.db"
