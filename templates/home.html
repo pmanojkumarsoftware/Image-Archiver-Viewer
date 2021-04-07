@@ -1,0 +1,12 @@
+<h1>Images</h3>
+
+<h3>{{ category }}</h3>
+{% for cat in categories %}
+{% if cat != category %} <a href="/?category={{cat}}">{{cat}}</a>{% endif %}
+{% endfor %}
+
+<ol>
+{% for img_path in rows %}
+<li><img src="{{img_path}}"/></li>
+{% endfor %}
+</ol>

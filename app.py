@@ -1,9 +1,9 @@
-from flask import Flask
+from flask import Flask, g, request, render_template, send_from_directory
 import sqlite3
-from flask import g
-from settings import DATABASE
+import os
+from settings import DATABASE, CAT2, CATEGORIES, PH_FOLDER
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='')
 
 def get_db():
     db = getattr(g, "_database", None)
@@ -18,10 +18,21 @@ def close_connection(exception):
     if db is not None:
         db.close()
 
+@app.route('/photos/<path:path>')
+def send_js(path):
+    return send_from_directory('photos', path)
+
 
 @app.route("/")
 def hello_world():
-    cur = get_db().cursor()
-    rows = list(cur.execute("SELECT * FROM photos ORDER BY category"))
-    print(rows)
-    return "Hello, World!"
+    category = request.args.get("category", CAT2)
+    rows = []
+    if category in CATEGORIES:
+        print ("CAT:", category)
+        cur = get_db().cursor()
+        for category, filename in cur.execute("SELECT * FROM photos where category=?", (category,)):
+            full_path = os.path.join(PH_FOLDER, category, filename)
+            rows.append(full_path)
+
+    print (rows)
+    return render_template("home.html", rows=rows, category=category, categories=CATEGORIES)

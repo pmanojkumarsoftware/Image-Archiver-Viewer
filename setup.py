@@ -38,7 +38,7 @@ def setup_database(conn):
     print("DROP TABLE")
     execute_query(conn, """drop table photos""")
     print("CREATE TABLE")
-    execute_query(conn, """create table photos(filename text, category text)""")
+    execute_query(conn, """create table photos(category text, filename text)""")
 
     print("LOAD PICTURES")
     values = get_category_and_filename_from_folders()
