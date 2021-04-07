@@ -31,7 +31,7 @@ def get_category_and_filename_from_folders():
                 category = _.lstrip(f"{PH_FOLDER}/")
                 for filename in filenames:
                     print(category, filename)
-                    yield category, filename
+                    yield category, os.path.join(PH_FOLDER, category, filename)
 
 
 def setup_database(conn):

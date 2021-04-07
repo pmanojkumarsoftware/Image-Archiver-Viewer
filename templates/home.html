@@ -1,6 +1,18 @@
 <h1>Images</h3>
 
-<h3>{{ category }}</h3>
+<h3>Upload</h3>
+<form method="post" action="/" enctype="multipart/form-data">
+<label for="category">Choose a category:</label>
+<select name="category" id="category" required>
+{% for cat in categories %}
+    <option value="{{cat}}">{{cat}}</option>
+{% endfor %}
+</select>
+<input type = "file" name = "file" required/>
+<button>Submit</button>
+</form>
+
+<h3>View {{ category }}</h3>
 {% for cat in categories %}
 {% if cat != category %} <a href="/?category={{cat}}">{{cat}}</a>{% endif %}
 {% endfor %}
@@ -9,4 +21,6 @@
 {% for img_path in rows %}
 <li><img src="{{img_path}}"/></li>
 {% endfor %}
+{{ "No Items To Display" if not rows|length}}
 </ol>
+

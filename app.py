@@ -1,9 +1,11 @@
-from flask import Flask, g, request, render_template, send_from_directory
 import sqlite3
 import os
+from flask import Flask, g, request, render_template, send_from_directory
+from werkzeug.utils import secure_filename
 from settings import DATABASE, CAT2, CATEGORIES, PH_FOLDER
 
-app = Flask(__name__, static_url_path='')
+app = Flask(__name__, static_url_path="")
+
 
 def get_db():
     db = getattr(g, "_database", None)
@@ -18,21 +20,38 @@ def close_connection(exception):
     if db is not None:
         db.close()
 
-@app.route('/photos/<path:path>')
+
+@app.route("/photos/<path:path>")
 def send_js(path):
-    return send_from_directory('photos', path)
+    return send_from_directory("photos", path)
 
 
-@app.route("/")
+@app.route("/", methods=["POST", "GET"])
 def hello_world():
-    category = request.args.get("category", CAT2)
-    rows = []
-    if category in CATEGORIES:
-        print ("CAT:", category)
-        cur = get_db().cursor()
-        for category, filename in cur.execute("SELECT * FROM photos where category=?", (category,)):
-            full_path = os.path.join(PH_FOLDER, category, filename)
-            rows.append(full_path)
+    if request.method == "POST":
+        c = request.form["category"].lower()
+        f = request.files["file"]
+        if not c in CATEGORIES:
+            return "category not recognised"
+        file_path = os.path.join(PH_FOLDER, c, secure_filename(f.filename))
+        f.save(file_path)
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute("insert into photos values (?,?)", (c, file_path))
+        conn.commit()
+        return "file uploaded successfully"
+    else:
+        category = request.args.get("category", CAT2)
+        rows = []
+        if category in CATEGORIES:
+            print("CAT:", category)
+            cur = get_db().cursor()
+            for category, filename in cur.execute(
+                "SELECT * FROM photos where category=?", (category,)
+            ):
+                rows.append(filename)
 
-    print (rows)
-    return render_template("home.html", rows=rows, category=category, categories=CATEGORIES)
+        print(rows)
+        return render_template(
+            "home.html", rows=rows, category=category, categories=CATEGORIES
+        )
